@@ -1,0 +1,17 @@
+# --- R session junk ---
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+# --- knitr / rmarkdown transient build artifacts ---
+# (NOT src/cache/ — that data cache is kept on purpose)
+*_cache/
+*_files/
+*.knit.md
+*.utf8.md
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+desktop.ini
