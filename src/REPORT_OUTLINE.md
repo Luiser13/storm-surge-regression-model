@@ -34,10 +34,16 @@ Each section below lists what to write and the key findings to expand into prose
   3. Day-to-day variability: oscillations larger on 30 Aug, smaller on 1 Mar; storm days
      far more irregular (4 Oct 2010 driven past +3.00 m closure threshold).
 
-### Q2 — Suppressing the oscillations  [TODO]
-- Centred moving average over ~one slowest period (61 pts ~ 610 s at 10 s) cancels the
-  10-min oscillation. Cross-check with `loess` / `smooth.spline`.
-- Deliver: plots of two smoothed high waters (raw + smoothed overlay).
+### Q2 — Suppressing the oscillations  [CODE DONE: R/01_eda.R]
+- Functions: `smooth_movavg()`, `smooth_spline_trend()`, `q2_smoothed()`, `plot_q2()`.
+- Method: centred moving average of width = slowest period (~545 s = 55 samples at 10 s).
+  Averaging a full cycle nulls the 545 s oscillation exactly and attenuates the 205/85 s.
+- Cross-checked with `smooth.spline` (spar=0.8). NOTE: `loess` segfaults in this
+  R 4.6.0 / Windows build, so we use smooth.spline as the R-smoother comparison.
+- Findings: both smoothers recover a smooth tidal **dome**. On 30 Aug (oscillation-rich)
+  the 55-pt moving average leaves small residual wiggles (single rectangular window does
+  not fully cancel the faster oscillations); the spline is visually cleaner. On 1 Mar the
+  oscillations are tiny and the two agree closely. The clean dome motivates the Q3 parabola.
 
 ### Q3 — Simple trend model  [TODO]
 - Propose downward **parabola** w(t) ~ a - b (t - t0)^2 for the trend near high tide.

@@ -5,7 +5,7 @@
 #
 # Q1  Pick two days with high tide > 2.30 m (water_cm > 230) at RPBU; plot the
 #     full day and zoom in around the peaks; describe the shape.       [DONE]
-# Q2  Suppress the harbour oscillations with smoothing.                [TODO next]
+# Q2  Suppress the harbour oscillations with smoothing.                [DONE]
 # Q3  Propose the simplest trend model around high tide.               [TODO next]
 # =============================================================================
 
@@ -68,13 +68,57 @@ plot_highwater <- function(rpbu, day, before = 90, after = 90,
 }
 
 # ----- Q2: smoothing to suppress oscillations --------------------------------
-# Centred moving average over ~one full slowest period (61 pts ~ 610 s at 10 s).
-smooth_movavg <- function(x, window_pts = 61) {
+# Idea: a centred moving average of width = one full oscillation period averages
+# that oscillation to (nearly) zero while leaving the slow tidal trend intact.
+# The slowest harbour oscillation is ~545 s (the assignment also calls it "almost
+# 10 min"). At 10-s sampling that is ~55 samples, so a 55-point centred mean nulls
+# the slowest oscillation exactly and strongly attenuates the 205 s and 85 s ones.
+MOVAVG_PTS <- 55                                   # ~550 s window (= slowest period)
+
+# Simple method (the one the hint points to): centred moving average.
+smooth_movavg <- function(x, window_pts = MOVAVG_PTS) {
   if (!requireNamespace("zoo", quietly = TRUE))
     stop("Package 'zoo' is required. Run: install.packages('zoo')")
   zoo::rollmean(x, k = window_pts, fill = NA, align = "center")
 }
-# TODO(Q2): also fit loess / smooth.spline and overlay smoothed vs raw.
+
+# Alternative R smoother: a smoothing spline. 'spar' (in [0,1], higher = smoother)
+# is set so the spline follows the slow tidal trend and ignores the oscillations.
+# (We use smooth.spline rather than loess: loess segfaults in this R/Windows build.)
+smooth_spline_trend <- function(t_sec, x, spar = 0.8) {
+  ok <- !is.na(x)
+  fit <- smooth.spline(t_sec[ok], x[ok], spar = spar)
+  predict(fit, t_sec)$y
+}
+
+# Build a tidy data.frame for one high-water window with both smoothers attached.
+q2_smoothed <- function(rpbu, day, before = 90, after = 90,
+                        window_pts = MOVAVG_PTS, spar = 0.8) {
+  pk  <- day_peak(rpbu, day)
+  win <- rpbu_window(rpbu, pk$datetime, before, after)
+  win[, t_sec := as.numeric(datetime - min(datetime))]
+  win[, mov  := smooth_movavg(water_cm, window_pts)]
+  win[, spl  := smooth_spline_trend(t_sec, water_cm, spar)]
+  win[]
+}
+
+# Plot raw vs smoothers for one high water (used to compare visually in Q2).
+plot_q2 <- function(rpbu, day, before = 90, after = 90,
+                    window_pts = MOVAVG_PTS, spar = 0.8) {
+  d  <- q2_smoothed(rpbu, day, before, after, window_pts, spar)
+  pk <- day_peak(rpbu, day)
+  ggplot(d, aes(datetime)) +
+    geom_line(aes(y = water_cm, colour = "raw (10 s)"), linewidth = 0.3) +
+    geom_line(aes(y = mov, colour = "moving avg (55 pt)"), linewidth = 0.9, na.rm = TRUE) +
+    geom_line(aes(y = spl, colour = "smooth.spline"),     linewidth = 0.9, na.rm = TRUE) +
+    scale_colour_manual(values = c("raw (10 s)" = "grey70",
+                                   "moving avg (55 pt)" = "red",
+                                   "smooth.spline" = "blue")) +
+    labs(title = sprintf("Smoothed high water on %s (peak %d cm)",
+                         format(day, "%d %b %Y"), pk$water_cm),
+         x = NULL, y = "water level [cm w.r.t. NAP]", colour = NULL) +
+    theme_minimal(base_size = 10) + theme(legend.position = "top")
+}
 
 # ----- Q3: simple trend model ------------------------------------------------
 # TODO(Q3): fit w ~ poly(t, 2) near a peak; discuss cos-expansion physics.
