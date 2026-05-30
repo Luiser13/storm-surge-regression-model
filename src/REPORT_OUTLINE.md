@@ -45,9 +45,20 @@ Each section below lists what to write and the key findings to expand into prose
   not fully cancel the faster oscillations); the spline is visually cleaner. On 1 Mar the
   oscillations are tiny and the two agree closely. The clean dome motivates the Q3 parabola.
 
-### Q3 — Simple trend model  [TODO]
-- Propose downward **parabola** w(t) ~ a - b (t - t0)^2 for the trend near high tide.
-- Physics: tide ~ A cos(omega t); near the peak cos ~ 1 - (omega t)^2 / 2 -> parabola.
+### Q3 — Simple trend model  [CODE DONE: R/01_eda.R]
+- Functions: `q3_parabola()` (fit + interpreted numbers), `plot_q3()` (overlay).
+- Model: downward **parabola** w(t) = a - b (t - t0)^2, fit as a quadratic regression
+  (lm: water ~ tc + tc^2, tc = minutes from high water) on +/- 45 min around the peak.
+  Least squares treats the oscillations as zero-mean noise and recovers the trend.
+- Fit quality: 1 Mar (clean dome) R2 = 0.96 at every window (parabola excellent);
+  30 Aug (broad flat "stand") R2 = 0.75 at +/-45 min, rising to 0.90 at +/-60 min
+  (a single parabola smooths over its slight double-bump top). Curvature c2 < 0 (dome).
+- Physics (the "does it coincide" answer): the parabola is the 2nd-order Taylor
+  expansion of the tidal cosine A cos(omega t) at high water (cos x ~ 1 - x^2/2), so
+  b = A omega^2 / 2 > 0. So YES it matches elementary tide physics. Keep this
+  QUALITATIVE: the measured curvature is sharper than a pure M2 cosine predicts
+  (real tide = many constituents + shallow-water effects), so don't claim a precise
+  amplitude match.
 
 ## 3. Predictions of RPBU
 
