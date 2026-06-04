@@ -62,10 +62,21 @@ Each section below lists what to write and the key findings to expand into prose
 
 ## 3. Predictions of RPBU
 
-### Q4 — Linear regression model  [TODO]
-- Fixed periods 545/205/85 s. a sin(w(t-phi)) = alpha sin(wt) + beta cos(wt) -> LINEAR.
-- Model: quadratic trend + 3 sin/cos pairs, fit with `lm()`.
-- Fit on a window before high water; experiment with window length; report 5-min-ahead RMSE.
+### Q4 — Linear regression model  [CODE DONE: R/02_linear_model.R]
+- Functions: `lin_terms()`, `linear_forecast()`, `score_forecast()`, `eval_day()`.
+- Model: quadratic (parabola) trend + 3 fixed-period sin/cos pairs, fit with one `lm()`.
+  Linear because a sin(w(t-phi)) = alpha sin(wt) + beta cos(wt) with w fixed (545/205/85 s).
+- Operational test: slide "now" across the 60 min before high water; at each step fit on the
+  last L minutes and predict 5 min (30 steps) ahead; score RMSE vs actual.
+- Time-frame experiment (mean 5-min RMSE over the approach):
+  - 1 Mar (calm): L=15-20 min best (~2.0 cm); DEGRADES for long windows (L=60 -> 5.9 cm)
+    because the quadratic trend is misspecified over a long span.
+  - 30 Aug (rough): L~45 min best (~5.7 cm); needs more history to average the big oscillations.
+  - Sweet spot ~20-30 min: long enough for >=2 cycles of the slowest 545 s (9.1 min)
+    oscillation, short enough that the parabola trend still holds. RECOMMEND ~25 min.
+- Performance: 5-min-ahead RMSE ~2 cm (calm) to ~6 cm (rough); example plot shows
+  forecast essentially overlapping the actual. The long-window degradation motivates a
+  better/less rigid trend + free periods (Q5+).
 
 ### Q5 — Non-linear model  [TODO]
 - Periods free. Classify: conditionally linear (linear in amplitudes/trend given freqs),

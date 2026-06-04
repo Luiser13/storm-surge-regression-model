@@ -16,11 +16,16 @@ Follow these steps once on each machine. It should take ~15 minutes.
   written report (`report.Rmd`) is assembled at the very end from `REPORT_OUTLINE.md`.
 
 ## 3. Install the R packages we use
-Run this once in the RStudio Console:
+With the working directory set to `src/`, run this once in the RStudio Console:
 ```r
 install.packages(c("data.table", "ggplot2", "zoo", "minpack.lm",
-                   "rmarkdown", "knitr", "tinytex"))
+                   "rmarkdown", "knitr", "tinytex", "bookdown"))
 ```
+Packages are kept in a **project-local library `src/.Rlib`** (loaded automatically by
+`src/.Rprofile`). We use this instead of the default Windows user library because that
+lives under AppData, which on some setups is virtualised/unreliable. To install into
+`.Rlib` explicitly: `install.packages(..., lib = ".Rlib")`. The `.Rlib` folder is
+git-ignored (compiled, machine-specific), so each machine builds its own once.
 
 ## 4. Install TinyTeX (the LaTeX engine that turns the report into a PDF)
 Run once in the Console:

@@ -18,3 +18,7 @@ desktop.ini
 
 # --- scratch / throwaway inspection files (prefix with _) ---
 _*
+
+# --- project-local R package library (large, compiled, machine-specific) ---
+# Recreate with install.packages(...) per SETUP.md, or copy into src/.Rlib.
+src/.Rlib/
