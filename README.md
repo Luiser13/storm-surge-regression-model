@@ -59,13 +59,8 @@ source("R/02_linear_model.R")
 eval_day(rpbu, CHOSEN_DAYS[2], window_min = 25)   # 5-min-ahead RMSE
 ```
 
-## What's implemented here
-- **Q1-Q3** exploratory data analysis — `R/01_eda.R`
-- **Q4** linear regression model (parabola trend + fixed-period oscillations) and
-  5-minute-ahead forecasting — `R/02_linear_model.R`
-
 ## Notes
-- Run analysis from `.R` script files rather than long one-liners — more stable.
+- Run analysis from `.R` script files rather than long one-liners more stable.
 - Render any R Markdown **in place** (the folder path contains spaces, which breaks
   LaTeX figure paths if rendered into a separate output folder).
 - `loess` segfaults on this R build; use `smooth.spline` instead.
