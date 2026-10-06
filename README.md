@@ -10,8 +10,6 @@ law at +3.00 m NAP). The inner harbour at RPBU produces oscillations with period
 of roughly **545, 205 and 85 s** that, by regulation, may not be filtered out — so
 the model has to capture both the slow tidal trend and those fast oscillations.
 
-Written in **R**. The report write-up is kept in Overleaf.
-
 ## Repository layout
 ```
 .
